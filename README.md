@@ -2,7 +2,7 @@
 
 ## Install
 
-1. Upload *hdcore* folder to `modules/servers/` directory under your WHMCS installaction
+1. Upload *hdcore* folder to `modules/servers/` directory under your WHMCS installation
 
 ## Product Setup
 
