@@ -173,110 +173,50 @@ function hdcorevps_ClientArea($params)
         return $vps['error']['message'];
     }
 
+    $vars = array(
+        'vps' => $vps['response']
+    );
 
-    $dns_html = "";
-    foreach($vps['response']['dns'] as $name_server) {
-        $dns_html[] = "{$name_server['dns']} {$name_server['ip']}";
-    }
-    $dns_html = implode("<br />", $dns_html);
+    $active_status = array('active','suspended','clientsuspend');
+    if (in_array($server['response']['status'], $active_status)) {
+        $day = $api->call('vps.graphs', array(
+            'cuid'       => $api_id,
+            'type'       => 'bandwidth',
+            'date_range' => array(date('Y-m-d', strtotime('-1 day')), date('Y-m-d'))
+        ));
 
-    $html = <<<"EOT"
-<style type="text/css">
-    .module-client-area .row {
-        padding-bottom: 15px;
-    }
-</style>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>ID</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['cuid']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Memory</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['memory']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Operating System</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['os']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Control Panel</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['control_panel']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Main IP</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['ip_main']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>DNS</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$dns_html}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>SSH Port</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['ssh_port']}
-        <a href="ssh://{$vps['response']['ip_main']}:{$vps['response']['ssh_port']}" class="btn btn-primary">
-        <i class="fa fa-terminal"></i>
-        SSH to Server
-        </a>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Disk Usage</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$vps['response']['disk_usage']} MB / {$vps['response']['disk_quota']} MB
-    </div>
-</div>
-EOT;
+        $week = $api->call('vps.graphs', array(
+            'cuid'       => $api_id,
+            'type'       => 'bandwidth',
+            'date_range' => array(date('Y-m-d', strtotime('-7 days')), date('Y-m-d'))
+        ));
 
-    if (in_array($vps['response']['status'], $active_status)) {
-        $html .= <<<"EOB"
-<div class="row">
-    <h4>Daily Graph</h4>
-    <img src="data:image/png;base64,{$day['response']['data']}" />
-</div>
-<div class="row">
-    <h4>Weekly Graph</h4>
-    <img src="data:image/png;base64,{$week['response']['data']}" />
-</div>
-<div class="row">
-    <h4>Monthly Graph</h4>
-    <img src="data:image/png;base64,{$month['response']['data']}" />
-</div>
-<div class="row">
-    <h4>Yearly Graph</h4>
-    <img src="data:image/png;base64,{$year['response']['data']}" />
-</div>
-EOB;
+        $month = $api->call('vps.graphs', array(
+            'cuid'       => $api_id,
+            'type'       => 'bandwidth',
+            'date_range' => array(date('Y-m-d', strtotime('-1 month')), date('Y-m-d'))
+        ));
+
+        $year = $api->call('vps.graphs', array(
+            'cuid'       => $api_id,
+            'type'       => 'bandwidth',
+            'date_range' => array(date('Y-m-d', strtotime('-1 year')), date('Y-m-d'))
+        ));
+
+        $vars = array_merge(
+            $vars,
+            array(
+                'day_graph'   => $day['response']['data'],
+                'week_graph'  => $week['response']['data'],
+                'month_graph' => $month['response']['data'],
+                'year_graph'  => $year['response']['data']
+            )
+        );
     }
 
-    return $html;
+    return array(
+        'templatefile' => 'clientarea',
+        'vars'         => $vars
+    );
 
 }
