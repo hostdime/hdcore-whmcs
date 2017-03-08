@@ -163,7 +163,7 @@ function hdcorevps_ClientArea($params)
     );
 
     $active_status = array('active','suspended','clientsuspend');
-    if (in_array($server['response']['status'], $active_status)) {
+    if (in_array($vps['response']['status'], $active_status)) {
         $day = $api->call('vps.graphs', array(
             'cuid'       => $api_id,
             'type'       => 'bandwidth',
