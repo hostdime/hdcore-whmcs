@@ -2,6 +2,15 @@
 
 require_once('core_api.php');
 
+function getApiClient($params)
+{
+    return new CoreClient(
+        $params['configoption1'],
+        $params['configoption3'],
+        array('endpoint' => $params['configoption2'])
+    );
+}
+
 function hdcore_ConfigOptions()
 {
     return array(
@@ -26,11 +35,7 @@ function hdcore_ConfigOptions()
 
 function hdcore_SuspendAccount($params)
 {
-    $api = new CoreClient(
-                $params['configoption1'],
-                $params['configoption3'],
-                array('endpoint' => $params['configoption2'])
-           );
+    $api = getApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -48,11 +53,7 @@ function hdcore_SuspendAccount($params)
 
 function hdcore_UnsuspendAccount($params)
 {
-    $api = new CoreClient(
-                $params['configoption1'],
-                $params['configoption3'],
-                array('endpoint' => $params['configoption2'])
-           );
+    $api = getApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -88,11 +89,7 @@ function hdcore_ClientAreaCustomButtonArray()
 
 function hdcore_reboot($params)
 {
-    $api = new CoreClient(
-                $params['configoption1'],
-                $params['configoption3'],
-                array('endpoint' => $params['configoption2'])
-           );
+    $api = getApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -110,11 +107,7 @@ function hdcore_reboot($params)
 
 function hdcore_turnoff($params)
 {
-    $api = new CoreClient(
-                $params['configoption1'],
-                $params['configoption3'],
-                array('endpoint' => $params['configoption2'])
-           );
+    $api = getApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -132,11 +125,7 @@ function hdcore_turnoff($params)
 
 function hdcore_turnon($params)
 {
-    $api = new CoreClient(
-                $params['configoption1'],
-                $params['configoption3'],
-                array('endpoint' => $params['configoption2'])
-           );
+    $api = getApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -154,11 +143,7 @@ function hdcore_turnon($params)
 
 function hdcore_ClientArea($params)
 {
-    $api = new CoreClient(
-                $params['configoption1'],
-                $params['configoption3'],
-                array('endpoint' => $params['configoption2'])
-           );
+    $api = getApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -172,6 +157,10 @@ function hdcore_ClientArea($params)
     if (isset($server['error']['code'])) {
         return $server['error']['message'];
     }
+
+    $vars = array(
+        'server' => $server['response']
+    );
 
     // Only pull bandwidth images for active and suspended services
     $active_status = array('active','suspended','clientsuspend');
@@ -199,117 +188,21 @@ function hdcore_ClientArea($params)
             'graph_type'  => 'port',
             'time_period' => 'year'
         ));
+
+        $vars = array_merge(
+            $vars,
+            array(
+                'day_graph'   => $day['response']['data'],
+                'week_graph'  => $week['response']['data'],
+                'month_graph' => $month['response']['data'],
+                'year_graph'  => $year['response']['data']
+            )
+        );
     }
 
-    $dns_html = "";
-    foreach($server['response']['dns'] as $name_server) {
-        $dns_html[] = "{$name_server['dns']} {$name_server['ip']}";
-    }
-    $dns_html = implode("<br />", $dns_html);
-
-    $hdd_html = "";
-    foreach($server['response']['hard_drives'] as $drive) {
-        $hdd_html[] = "{$drive['size']} {$drive['type']}";
-    }
-    $hdd_html = implode("<br />", $hdd_html);
-
-    $html = <<<"EOT"
-<style type="text/css">
-    .module-client-area .row {
-        padding-bottom: 15px;
-    }
-</style>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>ID</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$server['response']['label']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Chassis Type</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$server['response']['type']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Main IP</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$server['response']['ip_main']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>DNS</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$dns_html}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>CPU</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$server['response']['cpu']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Memory</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$server['response']['memory']}
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>SSH Port</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$server['response']['ssh_port']}
-        <a href="ssh://{$server['response']['ip_main']}:{$server['response']['ssh_port']}" class="btn btn-primary">
-        <i class="fa fa-terminal"></i>
-        SSH to Server
-        </a>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-5 text-right">
-        <strong>Hard Disks</strong>
-    </div>
-    <div class="col-sm-7 text-left">
-        {$hdd_html}
-    </div>
-</div>
-EOT;
-
-    if (in_array($server['response']['status'], $active_status)) {
-        $html .= <<<"EOB"
-<div class="row">
-    <h4>Daily Graph</h4>
-    <img src="data:image/png;base64,{$day['response']['data']}" />
-</div>
-<div class="row">
-    <h4>Weekly Graph</h4>
-    <img src="data:image/png;base64,{$week['response']['data']}" />
-</div>
-<div class="row">
-    <h4>Monthly Graph</h4>
-    <img src="data:image/png;base64,{$month['response']['data']}" />
-</div>
-<div class="row">
-    <h4>Yearly Graph</h4>
-    <img src="data:image/png;base64,{$year['response']['data']}" />
-</div>
-EOB;
-    }
-
-    return $html;
+    return array(
+        'templatefile' => 'clientarea',
+        'vars'         => $vars
+    );
 
 }
