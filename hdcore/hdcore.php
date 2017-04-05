@@ -162,6 +162,8 @@ function hdcore_ClientArea($params)
         'server' => $server['response']
     );
 
+    $ip_addresses = null;
+
     // Only pull bandwidth images for active and suspended services
     $active_status = array('active','suspended','clientsuspend');
     if (in_array($server['response']['status'], $active_status)) {
@@ -198,11 +200,35 @@ function hdcore_ClientArea($params)
                 'year_graph'  => $year['response']['data']
             )
         );
+
+        $ip_addresses = $api->call('server.rdns.list', array(
+            'cuid'        => $api_id
+        ));
     }
+
+    $vars['ip_addresses'] = $ip_addresses['response'];
 
     return array(
         'templatefile' => 'clientarea',
         'vars'         => $vars
     );
 
+}
+
+function hdcore_rdns($params)
+{
+    $api = getApiClient($params);
+
+    $api_id = $params['customfields']['API ID'];
+    if (empty($api_id))
+        return "";
+
+    foreach ($_POST['ptr'] as $ip => $ptr) {
+        $api->call('server.rdns.update', array(
+            'ip'  => $ip,
+            'ptr' => $ptr
+        ));
+    }
+
+    return 'success';
 }
