@@ -164,7 +164,7 @@ function hdcore_ClientArea($params)
 
     $ip_addresses = null;
 
-    // Only pull bandwidth images for active and suspended services
+    // Only pull bandwidth images and IPs for active and suspended services
     $active_status = array('active','suspended','clientsuspend');
     if (in_array($server['response']['status'], $active_status)) {
         $day = $api->call('server.bandwidth', array(
@@ -191,22 +191,21 @@ function hdcore_ClientArea($params)
             'time_period' => 'year'
         ));
 
-        $vars = array_merge(
-            $vars,
-            array(
-                'day_graph'   => $day['response']['data'],
-                'week_graph'  => $week['response']['data'],
-                'month_graph' => $month['response']['data'],
-                'year_graph'  => $year['response']['data']
-            )
-        );
-
         $ip_addresses = $api->call('server.rdns.list', array(
             'cuid'        => $api_id
         ));
-    }
 
-    $vars['ip_addresses'] = $ip_addresses['response'];
+        $vars = array_merge(
+            $vars,
+            array(
+                'day_graph'    => $day['response']['data'],
+                'week_graph'   => $week['response']['data'],
+                'month_graph'  => $month['response']['data'],
+                'year_graph'   => $year['response']['data'],
+                'ip_addresses' => $ip_addresses['response']
+            )
+        );
+    }
 
     return array(
         'templatefile' => 'clientarea',

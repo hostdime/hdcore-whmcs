@@ -162,39 +162,47 @@ function hdcorevps_ClientArea($params)
         'vps' => $vps['response']
     );
 
+    $ip_addresses = null;
+
+    // Only pull bandwidth images and IPs for active and suspended services
     $active_status = array('active','suspended','clientsuspend');
     if (in_array($vps['response']['status'], $active_status)) {
         $day = $api->call('vps.graphs', array(
             'cuid'       => $api_id,
             'type'       => 'bandwidth',
-            'date_range' => array(date('Y-m-d', strtotime('-1 day')), date('Y-m-d'))
+            'date_range' => json_encode(array(date('Y-m-d', strtotime('-1 day')), date('Y-m-d')))
         ));
 
         $week = $api->call('vps.graphs', array(
             'cuid'       => $api_id,
             'type'       => 'bandwidth',
-            'date_range' => array(date('Y-m-d', strtotime('-7 days')), date('Y-m-d'))
+            'date_range' => json_encode(array(date('Y-m-d', strtotime('-7 days')), date('Y-m-d')))
         ));
 
         $month = $api->call('vps.graphs', array(
             'cuid'       => $api_id,
             'type'       => 'bandwidth',
-            'date_range' => array(date('Y-m-d', strtotime('-1 month')), date('Y-m-d'))
+            'date_range' => json_encode(array(date('Y-m-d', strtotime('-1 month')), date('Y-m-d')))
         ));
 
         $year = $api->call('vps.graphs', array(
             'cuid'       => $api_id,
             'type'       => 'bandwidth',
-            'date_range' => array(date('Y-m-d', strtotime('-1 year')), date('Y-m-d'))
+            'date_range' => json_encode(array(date('Y-m-d', strtotime('-1 year')), date('Y-m-d')))
+        ));
+
+        $ip_addresses = $api->call('vps.rdns.list', array(
+            'cuid'        => $api_id
         ));
 
         $vars = array_merge(
             $vars,
             array(
-                'day_graph'   => $day['response']['data'],
-                'week_graph'  => $week['response']['data'],
-                'month_graph' => $month['response']['data'],
-                'year_graph'  => $year['response']['data']
+                'day_graph'    => $day['response']['data'],
+                'week_graph'   => $week['response']['data'],
+                'month_graph'  => $month['response']['data'],
+                'year_graph'   => $year['response']['data'],
+                'ip_addresses' => $ip_addresses['response']
             )
         );
     }
@@ -205,3 +213,22 @@ function hdcorevps_ClientArea($params)
     );
 
 }
+
+function hdcorevps_rdns($params)
+{
+    $api = getApiClient($params);
+
+    $api_id = $params['customfields']['API ID'];
+    if (empty($api_id))
+        return "";
+
+    foreach ($_POST['ptr'] as $ip => $ptr) {
+        $api->call('vps.rdns.update', array(
+            'ip'  => $ip,
+            'ptr' => $ptr
+        ));
+    }
+
+    return 'success';
+}
+

@@ -74,6 +74,40 @@
     </div>
 </div>
 
+{if $ip_addresses}
+<h3 class="pull-left">Reverse Dns Records</h3>
+<div class="row">
+    <form method="clientarea.php?action=productdetails" class="form-horizontal">
+        <input type="hidden" name="id" value="{$vps.cuid}" />
+        <input type="hidden" name="a" value="rdns" />
+        <input type="hidden" name="modop" value="custom" />
+        <table class="table table-stripeds">
+            <thead>
+                <tr>
+                    <th width="35%">IP Address</th>
+                    <th width="65%">PTR Record</th>
+                </tr>
+            </thead>
+            {foreach from=$ip_addresses item=ip}
+            <tr>
+                <td>
+                    {$ip.ip}
+                </td>
+                <td>
+                    <input type="text" class="form-control" size="50" name="ptr[{$ip.ip}]" value="{$ip.ptr}" />
+                </td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success pull-left">
+            Save RDNS Records
+        </button>
+    </form>
+</div>
+<br />
+{/if}
+
 {if $day_graph}
 <div class="row">
     <h4>Daily Graph</h4>
