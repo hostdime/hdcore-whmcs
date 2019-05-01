@@ -195,14 +195,17 @@ function hdcore_ClientArea($params)
             'cuid'        => $api_id
         ));
 
+        $control_panel = (stripos($server['control_panel'], 'cPanel') !== false ? true : false);
+
         $vars = array_merge(
             $vars,
             array(
-                'day_graph'    => $day['response']['data'],
-                'week_graph'   => $week['response']['data'],
-                'month_graph'  => $month['response']['data'],
-                'year_graph'   => $year['response']['data'],
-                'ip_addresses' => $ip_addresses['response']
+                'day_graph'     => $day['response']['data'],
+                'week_graph'    => $week['response']['data'],
+                'month_graph'   => $month['response']['data'],
+                'year_graph'    => $year['response']['data'],
+                'ip_addresses'  => $ip_addresses['response'],
+                'control_panel' => $control_panel
             )
         );
     }

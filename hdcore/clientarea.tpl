@@ -65,6 +65,36 @@
         </a>
     </div>
 </div>
+{if $control_panel}
+<div class="row">
+    <div class="col-sm-5 text-right">
+        <strong>Control Panel</strong>
+    </div>
+    <div class="col-sm-7 text-left">
+        {$server.control_panel}
+        <a href="https://{$server.ip_main}:2087" class="btn btn-primary">
+        <i class="fab fa-cpanel"></i>
+        Access WHM
+        </a>
+    </div>
+</div>
+{/if}
+{if $server.ip_ipmi neq ''}
+<div class="row">
+    <div class="col-sm-5 text-right">
+        <strong>IMPI Access</strong>
+    </div>
+    <div class="col-sm-7 text-left">
+        {if $server.ipmi_password neq ''}
+        hdview / {server.ipmi_password}
+        {/if}
+        <a href="https://{$server.ip_ipmi}" class="btn btn-primary">
+        <i class="fa fa-desktop"></i>
+        Remote Control
+        </a>
+    </div>
+</div>
+{/if}
 <div class="row">
     <div class="col-sm-5 text-right">
         <strong>Hard Disks</strong>
