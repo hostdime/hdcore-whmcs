@@ -2,7 +2,7 @@
 
 require_once('core_vps_api.php');
 
-function getApiClient($params)
+function getVpsApiClient($params)
 {
     return new CoreVpsClient(
         $params['configoption1'],
@@ -35,7 +35,7 @@ function hdcorevps_ConfigOptions()
 
 function hdcorevps_SuspendAccount($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -53,7 +53,7 @@ function hdcorevps_SuspendAccount($params)
 
 function hdcorevps_UnsuspendAccount($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -89,7 +89,7 @@ function hdcorevps_ClientAreaCustomButtonArray()
 
 function hdcorevps_reboot($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -107,7 +107,7 @@ function hdcorevps_reboot($params)
 
 function hdcorevps_turnoff($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -125,7 +125,7 @@ function hdcorevps_turnoff($params)
 
 function hdcorevps_turnon($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -143,7 +143,7 @@ function hdcorevps_turnon($params)
 
 function hdcorevps_ClientArea($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
@@ -216,7 +216,7 @@ function hdcorevps_ClientArea($params)
 
 function hdcorevps_rdns($params)
 {
-    $api = getApiClient($params);
+    $api = getVpsApiClient($params);
 
     $api_id = $params['customfields']['API ID'];
     if (empty($api_id))
